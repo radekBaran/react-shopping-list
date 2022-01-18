@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
+import Service from "../services/Services";
 import { Button, Grid, Paper, TextField } from "@mui/material";
 import Container from "@mui/material/Container";
 import Product from "./Product";
 import List from "@mui/material/List";
+import { AnyTxtRecord } from "dns";
 
 export default function MainContainer() {
   const [product, setProduct] = useState({
@@ -13,18 +16,31 @@ export default function MainContainer() {
   });
   const [productList, setProductList] = useState([]);
   const [isAddProductMode, setIsAddProductMode] = useState(false);
+  // const history = useNavigate();
+
+  useEffect(() => {
+    Service.getAll()
+      .then((response) => {
+        console.log("printing response", response.data);
+        setProductList(response.data);
+      })
+      .catch((error) => {
+        console.log("something went wrong", error);
+      });
+  }, []);
 
   const handleAddProductOnClick = () => {
     setProduct({ ...product, name: "", details: "" });
     setIsAddProductMode(true);
   };
 
-  const handleSaveButtonOnclick = () => {
+  const handleSaveButtonOnclick = (e: any) => {
     let products = [...productList] as any;
     setProduct({ ...product, id: product.id + 1 });
     products.push(product);
     setProductList(products);
     setIsAddProductMode(false);
+    saveNote(e);
   };
 
   const handleCancelButtonOnClick = () => {
@@ -33,10 +49,13 @@ export default function MainContainer() {
 
   const handleProductCheckboxOnChange = (id: number) => {
     productList.forEach((p: any) => {
-      if (id === p["id"]) {
-        p["checked"] = !p["checked"];
-        setProduct({ ...product, checked: !p.checked });
-      }
+      let prodList = [...productList];
+      productList.forEach((p: any, idx: any) => {
+        if (id === p.id) {
+          p["checked"] = !p["checked"];
+        }
+      });
+      setProductList(prodList);
     });
   };
 
@@ -52,6 +71,7 @@ export default function MainContainer() {
       prodList.splice(index, 1);
     }
     setProductList(prodList);
+    handleDelete(id);
   };
 
   const handleProductOnChange = (mode: string, e: any) => {
@@ -63,6 +83,30 @@ export default function MainContainer() {
         setProduct({ ...product, details: e.target.value });
         break;
     }
+  };
+
+  const saveNote = (e: any) => {
+    e.preventDefault();
+    // const note = { title, body, category };
+    console.log("printing note", product);
+    Service.create(product)
+      .then((response) => {
+        console.log("Note added successfully", response.data);
+        // history("/");
+      })
+      .catch((error) => {
+        console.log("something went wrong", error);
+      });
+  };
+
+  const handleDelete = (id: any) => {
+    Service.remove(id)
+      .then((response) => {
+        // history.push("/");
+      })
+      .catch((error) => {
+        console.log("Something went wrong", error);
+      });
   };
 
   return (
@@ -145,7 +189,7 @@ export default function MainContainer() {
             <Grid item xs={6}>
               <Button
                 variant="contained"
-                onClick={handleSaveButtonOnclick}
+                onClick={(e) => handleSaveButtonOnclick(e)}
                 disabled={!product.name}
               >
                 Zapisz
