@@ -5,7 +5,6 @@ import { Button, Grid, Paper, TextField } from "@mui/material";
 import Container from "@mui/material/Container";
 import Product from "./Product";
 import List from "@mui/material/List";
-import { AnyTxtRecord } from "dns";
 
 export default function MainContainer() {
   const [product, setProduct] = useState({
@@ -48,15 +47,16 @@ export default function MainContainer() {
   };
 
   const handleProductCheckboxOnChange = (id: number) => {
-    productList.forEach((p: any) => {
-      let prodList = [...productList];
-      productList.forEach((p: any, idx: any) => {
-        if (id === p.id) {
-          p["checked"] = !p["checked"];
-        }
-      });
-      setProductList(prodList);
+    let prodList = [...productList];
+    productList.forEach((p: any, idx: any) => {
+      console.log("idx", idx);
+      console.log('p["checked"]', p["checked"]);
+      console.log('p["checked"]', p["checked"]);
+      if (id === p.id) {
+        p["checked"] = !p["checked"];
+      }
     });
+    setProductList(prodList);
   };
 
   const handleProductDeleteButtonOnClick = (id: number) => {
@@ -111,17 +111,18 @@ export default function MainContainer() {
 
   return (
     <Container maxWidth="sm">
-      <Paper style={{ padding: "1%", alignItems: "center" }}>
+      <Paper style={{ padding: "1%" }}>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={8}>
+          <Grid item xs={6}>
             <h1>Lista zakupów</h1>
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={6}>
             <Button
               variant="contained"
               size="large"
               onClick={handleAddProductOnClick}
               disabled={isAddProductMode}
+              style={{ float: "right" }}
             >
               Dodaj produkt
             </Button>
